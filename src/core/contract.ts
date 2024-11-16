@@ -2,6 +2,8 @@ import * as fs from "fs";
 import * as path from "path";
 import {Contract, ethers, Wallet} from "ethers";
 import {ContractInterface} from "@ethersproject/contracts";
+import {Provider} from "@ethersproject/abstract-provider/src.ts/index";
+import {TransactionResponse} from "@ethersproject/abstract-provider";
 
 export type ContractInfo = {
   "contractName": string,
@@ -16,7 +18,7 @@ export type ContractInfo = {
 const ArtifactsPath = process.env.ARTIFACTS_PATH || './artifacts';
 
 function findAndLoadContractFile(contractName: string): string | null {
-  const contractsPath = path.join(ArtifactsPath, 'contracts');
+  const contractsPath = path.join(ArtifactsPath, 'src');
 
   function searchDirectory(directory: string): string | null {
     const files = fs.readdirSync(directory, { withFileTypes: true });
@@ -44,9 +46,24 @@ export function rpcUrl() {
   return process.env[`${env().toUpperCase()}NET_RPC_URL`]
 }
 
-let _provider;
+let _provider: Provider;
 export function provider() {
   return _provider ||= new ethers.providers.JsonRpcProvider(rpcUrl(), chainId());
+}
+
+// Load private key from environment
+const PRIVATE_KEY = process.env[`${env().toUpperCase()}NET_PRIVATE_KEY`];
+if (!PRIVATE_KEY) {
+  console.warn('Private key is not set in the environment variables.');
+}
+// Create a wallet instance with the private key
+let _signer: Wallet;
+// Function to get a signer (wallet) connected to the provider
+export function signer() {
+  if (!_signer) {
+    _signer = new ethers.Wallet(PRIVATE_KEY, provider());
+  }
+  return _signer;
 }
 
 export function getContractInfo(contractName: string) {
@@ -132,7 +149,7 @@ export async function findContract(name: string, cacheName?: string, address?: s
 
   // console.info(`... Completed!`);
 
-  return res;
+  return signer() ? res.connect(signer()) : res;
 }
 // export async function getOrDeployContract(
 //   name: string, cacheNameOrArgs?: string | any[], args?: any[]): Promise<[Contract, boolean]> {
@@ -173,6 +190,33 @@ export async function findContract(name: string, cacheName?: string, address?: s
 //     [await deployContract(name, args, cacheName), true] :
 //     getOrDeployContract(name, cacheName, args);
 // }
+
+export async function sendTx(
+  txPromise: Promise<TransactionResponse> | (() => Promise<TransactionResponse>),
+  label?: string, confirmations = DefaultConfirmations) {
+  if (txPromise instanceof Function) {
+    let cnt = 0;
+    while (true) {
+      try {
+        return await sendTx(txPromise(), label, confirmations);
+      } catch (e) {
+        console.error("... Error!", e);
+        if (++cnt < RetryCount)
+          console.info(`Retrying... (${cnt}/${RetryCount})`);
+        else {
+          console.error(`No retry count! Transaction is failed!`);
+          throw e;
+        }
+      }
+    }
+  } else {
+    console.info(`Sending ${label}...`)
+    const res = await txPromise;
+    await res.wait(confirmations)
+    console.info(`... Sent! ${res.hash}`)
+    return res
+  }
+}
 
 export function addrEq(a: string, b: string) {
   return a?.toLowerCase() == b?.toLowerCase();

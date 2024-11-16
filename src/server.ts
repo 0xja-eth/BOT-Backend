@@ -5,7 +5,7 @@ import { connect } from "./core/redis";
 import {sequelize, setup} from "./core/sequelize";
 
 // Init redis and sequelize
-connect().then(setup);
+// connect().then(setup);
 
 import express, {Request, Response} from "express";
 import bodyParser from "body-parser";

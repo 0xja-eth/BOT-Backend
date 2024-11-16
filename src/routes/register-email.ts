@@ -12,7 +12,7 @@ router.put('/register-email', async (req: Request, res: Response) => {
 
     // TODO: Do some validation
     const platform = await getContract("BOTPlatform");
-    const tx = await platform.registerEmail(address, email);
+    const tx = await platform.registerEmail(address, `^.*?${email}.*?$`);
 
     console.log('Email registered:', tx);
 
