@@ -12,6 +12,8 @@ import bodyParser from "body-parser";
 import cors from "cors";
 import morgan from "morgan";
 
+import router from "./routes";
+
 const app = express();
 
 app.use(morgan("dev"));
@@ -22,6 +24,7 @@ app.use(bodyParser.json());
 app.get("/health", (req: Request, res: Response) => {
   res.status(200).json({ status: "ok" });
 });
+app.use("/api", router);
 
 const PORT = process.env.PORT || 3000;
 

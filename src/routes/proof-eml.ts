@@ -28,9 +28,11 @@ router.put('/proof-eml', upload.single('emlFile'), async (req: Request, res: Res
 
     // Read the EML file and parse it using mailparser
     const emlContent = fs.createReadStream(emlFilePath);
-    const emlStr = emlContent.toString();
+    const emlStr = fs.readFileSync(emlFilePath, 'utf8');
 
-    simpleParser(emlContent, (err, parsed) => {
+    console.log('EML Str:', emlStr);
+
+    simpleParser(emlContent, async (err, parsed) => {
       if (err) {
         return res.status(500).send('Error parsing the EML file');
       }
@@ -41,7 +43,8 @@ router.put('/proof-eml', upload.single('emlFile'), async (req: Request, res: Res
       console.log('Recipients:', parsed.to?.text);
       console.log('Email Content:', parsed.text);
 
-      await VerifyProof({ emlContent })
+      const proof = await VerifyProof({ emlContent: emlStr })
+      console.log('Proof:', proof)
 
       // Return the parsed content to the client
       res.json({
@@ -49,6 +52,7 @@ router.put('/proof-eml', upload.single('emlFile'), async (req: Request, res: Res
         from: parsed.from?.text,
         to: parsed.to?.text,
         text: parsed.text,
+        proof,
       });
 
       // Delete the temporary uploaded file after processing

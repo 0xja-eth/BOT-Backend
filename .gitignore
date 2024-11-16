@@ -13,9 +13,7 @@ docs/
 .git-old
 
 # Dotenv file
-.env.dev
-
-.idea
+.env.local
 
 node_modules
 *.env
@@ -25,6 +23,9 @@ coverage
 coverage.json
 typechain
 typechain-types
+
+contracts.json
+contracts.*.json
 
 # Hardhat files
 cache
@@ -42,8 +43,9 @@ wallets
 dist
 build
 
-temp
+twmp
 
-target
+app.sh
+start.sh
 
-keys
+.idea
