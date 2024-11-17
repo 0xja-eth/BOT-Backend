@@ -1,6 +1,6 @@
-# Backend of BOT
+# BOT (BangkokOnTime)
 
-![img.png](img.png)
+![img_1.png](img_1.png)
 
 ## vLayer
 
@@ -19,3 +19,18 @@ The [BOTPlatform](https://github.com/0xja-eth/BOT-Contract/blob/main/src/BOTPlat
 If the actual endTime of the trip (verified by EmailProof) is later than the estimated endTime, the user will get a compensation. They can claim at any time after the trip ends.
 
 User must upload the email from Bolt to prove their trip is delayed. If not, the user will not get any compensation.
+
+## Bitkub
+
+All the contracts are deployed on the Bitkub Testnet. The contract addresses are:
+
+```json
+{
+  "USDC": "0x165eEEDc8D9eF353D68115260cCFE8a593EC7552", // KAP20
+  "BOTPlatform": "0xf096540C98E4aAF943C0C1616dCdb81Df848d775",
+  "EmailProver": "0xd726bca8fde31d8c1f918a3be12c4ceefe82f39e",
+  "EmailProofVerifier": "0x6e18cef18cbf6ceb96a52ab71f5330c4f312cf47"
+}
+```
+
+We make some efforts to deploy vlayer on Bitkub Testnet, in the help of vlayer and Bitkub, we finally make it work., 
