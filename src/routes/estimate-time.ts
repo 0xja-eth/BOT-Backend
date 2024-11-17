@@ -8,9 +8,11 @@ import {getContract} from "../core/contract";
 // Route to handle EML file upload
 router.put('/estimate-time', async (req: Request, res: Response) => {
   try {
-    const {tripId, startPos, endPos, estEndTime} = req.body;
+    let {tripId, startPos, endPos, estEndTime} = req.body;
     // const {latitude: startLat, longitude: startLon} = startPos;
     // const {latitude: endLat, longitude: endLon} = endPos;
+
+    estEndTime = Math.floor(estEndTime / 1000);
 
     // TODO: Do some validation, calculate the estimated time
     const platform = await getContract("BOTPlatform");
